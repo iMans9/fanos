@@ -1,85 +1,122 @@
-let questions = [];
+let players = [];
+let currentPlayerIdx = 0;
+let targetScore = 5000;
 let currentPhrase = "";
-let currentPlayer = 0;
-let scores = [0, 0, 0];
+let questions = [
+    {"category": "كرة قدم", "phrase": "ريال مدريد نادي القرن"},
+    {"category": "أمثال شعبية", "phrase": "الوقت كالسيف إن لم تقطعه قطعك"},
+    {"category": "معلومات عامة", "phrase": "المملكة العربية السعودية"}
+    // أضف الـ 200 جملة التي أعطيتك إياها سابقاً هنا
+];
 let usedLetters = [];
 let wheelValue = 0;
-let isVowelMode = false;
 
-const vowels = ['أ', 'ا', 'و', 'ي'];
-const alphabet = ['ب','ت','ث','ج','ح','خ','د','ذ','ر','ز','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ك','ل','م','ن','هـ'];
+// إعداد الأسماء
+const playerCountSelect = document.getElementById('player-count');
+const nameInputsDiv = document.getElementById('name-inputs');
 
-// تحميل الأسئلة
-window.onload = async () => {
-    const res = await fetch('questions.json');
-    questions = await res.json();
-    initGame();
+function updateNameInputs() {
+    nameInputsDiv.innerHTML = '';
+    for (let i = 1; i <= playerCountSelect.value; i++) {
+        nameInputsDiv.innerHTML += `<input type="text" placeholder="اسم المتسابق ${i}" id="p-name-${i}" value="متسابق ${i}">`;
+    }
+}
+playerCountSelect.addEventListener('change', updateNameInputs);
+updateNameInputs();
+
+document.getElementById('start-btn').onclick = () => {
+    targetScore = parseInt(document.getElementById('target-score').value);
+    players = [];
+    for (let i = 1; i <= playerCountSelect.value; i++) {
+        players.push({
+            name: document.getElementById(`p-name-${i}`).value,
+            score: 0
+        });
+    }
+    document.getElementById('setup-screen').classList.remove('active');
+    document.getElementById('game-screen').classList.add('active');
+    document.getElementById('goal-display').innerText = targetScore;
+    initRound();
 };
 
-function initGame() {
+function initRound() {
     const q = questions[Math.floor(Math.random() * questions.length)];
     currentPhrase = q.phrase;
+    usedLetters = [];
     document.getElementById('category-name').innerText = q.category;
     renderPhrase();
-    updateUI();
+    updateSidebar();
 }
 
 function renderPhrase() {
-    const display = document.getElementById('phrase-display');
-    display.innerHTML = '';
+    const container = document.getElementById('phrase-display');
+    container.innerHTML = '';
     currentPhrase.split('').forEach(char => {
         const div = document.createElement('div');
         div.className = char === ' ' ? 'letter-box space' : 'letter-box';
         div.textContent = char;
-        display.appendChild(div);
+        container.appendChild(div);
     });
 }
 
-// دوران العجلة
+function updateSidebar() {
+    const sidebar = document.getElementById('players-sidebar');
+    sidebar.innerHTML = '';
+    players.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = `player-tag ${i === currentPlayerIdx ? 'active' : ''}`;
+        div.innerHTML = `<div>${p.name}</div><div style="font-size:1.5rem"><strong>${p.score}</strong></div>`;
+        sidebar.appendChild(div);
+    });
+    document.getElementById('buy-vowel-btn').disabled = players[currentPlayerIdx].score < 250;
+}
+
 document.getElementById('spin-btn').onclick = () => {
-    const values = [100, 200, 500, 1000, "إفلاس", 250];
+    const values = [100, 200, 500, 1000, 2000, "إفلاس", 400, "راحت عليك"];
     wheelValue = values[Math.floor(Math.random() * values.length)];
     
     if (wheelValue === "إفلاس") {
-        alert("إفلاس! خسرت نقاط الجولة.");
-        scores[currentPlayer] = 0;
+        alert("إفلاس! رصيدك صفر.");
+        players[currentPlayerIdx].score = 0;
+        nextTurn();
+    } else if (wheelValue === "راحت عليك") {
+        alert("راحت عليك! انتقل الدور.");
         nextTurn();
     } else {
-        document.getElementById('status-msg').innerText = `وقفت العجلة على: ${wheelValue}. اختر حرفاً!`;
+        alert(`العجلة: ${wheelValue} نقطة. اختر حرفاً صامتاً!`);
         showKeyboard(false);
     }
 };
 
-// شراء حرف مساعدة (أ، و، ي)
 document.getElementById('buy-vowel-btn').onclick = () => {
-    if (scores[currentPlayer] >= 250) {
-        isVowelMode = true;
-        showKeyboard(true);
-    }
+    if (players[currentPlayerIdx].score >= 250) showKeyboard(true);
 };
 
-function showKeyboard(vowelsOnly) {
+function showKeyboard(isVowel) {
+    const box = document.getElementById('interaction-box');
     const kb = document.getElementById('keyboard');
+    box.classList.remove('hidden');
     kb.innerHTML = '';
-    document.getElementById('interaction-area').classList.remove('hidden');
     
-    const list = vowelsOnly ? vowels : alphabet;
-    list.forEach(let => {
-        const btn = document.createElement('div');
-        btn.className = usedLetters.includes(let) ? 'key used' : 'key';
-        btn.innerText = let;
-        if (!usedLetters.includes(let)) {
-            btn.onclick = () => handleLetter(let);
+    const letters = isVowel ? ['أ','و','ي'] : ['ب','ت','ث','ج','ح','خ','د','ذ','ر','ز','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ك','ل','م','ن','هـ'];
+    
+    letters.forEach(l => {
+        const btn = document.createElement('button');
+        btn.innerText = l;
+        btn.className = `key ${usedLetters.includes(l) ? 'used' : ''}`;
+        if (!usedLetters.includes(l)) {
+            btn.onclick = () => handleChoice(l, isVowel);
         }
         kb.appendChild(btn);
     });
 }
 
-function handleLetter(letter) {
+function handleChoice(letter, isVowel) {
     usedLetters.push(letter);
+    document.getElementById('interaction-box').classList.add('hidden');
+    
     let count = 0;
     const boxes = document.querySelectorAll('.letter-box');
-
     currentPhrase.split('').forEach((char, i) => {
         if (char === letter) {
             boxes[i].classList.add('revealed');
@@ -87,39 +124,31 @@ function handleLetter(letter) {
         }
     });
 
-    if (isVowelMode) {
-        scores[currentPlayer] -= 250; // خصم المساعدة دائماً
-        isVowelMode = false;
-        if (count > 0) alert(`صحيح! وجدنا ${count} حرف مساعد.`);
-        else { alert("للأسف الحرف غير موجود."); nextTurn(); return; }
+    if (isVowel) {
+        players[currentPlayerIdx].score -= 250;
+        if (count === 0) { alert("الحرف غير موجود!"); nextTurn(); return; }
     } else {
         if (count > 0) {
-            const win = wheelValue * count;
-            scores[currentPlayer] += win;
-            alert(`رائع! حرف (${letter}) تكرر ${count} مرات. ربحت ${win} نقطة.`);
+            players[currentPlayerIdx].score += (wheelValue * count);
+            alert(`وجدنا ${count} حرف! ربحت ${wheelValue * count} نقطة.`);
         } else {
-            alert("خطأ! الحرف غير موجود.");
+            alert("خطأ! انتقل الدور.");
             nextTurn();
             return;
         }
     }
-    updateUI();
-    document.getElementById('interaction-area').classList.add('hidden');
+    updateSidebar();
+    if (players[currentPlayerIdx].score >= targetScore) showWinner();
 }
 
 function nextTurn() {
-    currentPlayer = (currentPlayer + 1) % 3;
-    usedLetters = []; // أو اتركها إذا أردت الحروف مستخدمة طوال الجولة
-    updateUI();
-    document.getElementById('interaction-area').classList.add('hidden');
-    alert(`انتقل الدور إلى ${document.getElementById('p'+currentPlayer).querySelector('.p-name').innerText}`);
+    currentPlayerIdx = (currentPlayerIdx + 1) % players.length;
+    updateSidebar();
 }
 
-function updateUI() {
-    for (let i = 0; i < 3; i++) {
-        document.getElementById(`p${i}`).classList.toggle('active', i === currentPlayer);
-        document.getElementById(`p${i}`).querySelector('.p-score').innerText = scores[i];
-    }
-    // تفعيل زر شراء الحروف فقط إذا كان الرصيد يسمح
-    document.getElementById('buy-vowel-btn').disabled = scores[currentPlayer] < 250;
+function showWinner() {
+    document.getElementById('game-screen').classList.remove('active');
+    document.getElementById('winner-screen').classList.add('active');
+    document.getElementById('winner-text').innerText = `البطل هو ${players[currentPlayerIdx].name}`;
+    document.getElementById('final-score').innerText = `${players[currentPlayerIdx].score} نقطة`;
 }
