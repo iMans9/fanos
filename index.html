@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سباق الحروف - نسخة منصور الاحترافية</title>
+    <title>سباق الحروف - نسخة منصور واو الاحترافية</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -11,7 +11,6 @@
         * { box-sizing: border-box; }
         body { margin: 0; font-family: 'Cairo', sans-serif; background: var(--navy); color: white; height: 100vh; overflow: hidden; }
 
-        /* الشاشات */
         .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .screen.active { display: flex; }
 
@@ -20,7 +19,7 @@
         #announcement-overlay.show { opacity: 1; pointer-events: auto; }
         .big-text { font-size: 3.5rem; font-weight: 900; color: var(--gold); text-align: center; }
 
-        /* التوزيع العرضي (Landscape) */
+        /* التوزيع العرضي */
         #game-layout {
             display: grid;
             grid-template-columns: 1fr 380px;
@@ -44,10 +43,10 @@
 
         /* الدوامة */
         .wheel-container { position: relative; width: 300px; height: 300px; }
-        #wheelCanvas { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #fff; }
+        #wheelCanvas { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #fff; transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); }
         .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 35px; color: var(--red); z-index: 10; }
 
-        /* المتسابقين والتأثير الحركي */
+        /* المتسابقين وتأثير النشاط */
         #players-row { display: flex; gap: 15px; }
         .p-tag { padding: 10px 20px; border-radius: 12px; background: rgba(255,255,255,0.1); text-align: center; min-width: 100px; transition: 0.3s; border: 2px solid transparent; }
         .p-tag.active { 
@@ -59,16 +58,17 @@
         }
 
         @keyframes pulse {
-            0% { box-shadow: 0 0 10px var(--gold); }
-            50% { box-shadow: 0 0 30px var(--gold); }
-            100% { box-shadow: 0 0 10px var(--gold); }
+            0% { transform: scale(1.1); box-shadow: 0 0 10px var(--gold); }
+            50% { transform: scale(1.15); box-shadow: 0 0 30px var(--gold); }
+            100% { transform: scale(1.1); box-shadow: 0 0 10px var(--gold); }
         }
 
         /* الأزرار */
-        .btn { padding: 12px 35px; border-radius: 50px; border: none; font-weight: 900; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        .btn { padding: 12px 30px; border-radius: 50px; border: none; font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: 0.2s; font-family: 'Cairo'; }
         .btn-spin { background: var(--red); color: white; }
         .btn-vowel { background: #00cec9; color: white; }
         .btn-solve { background: var(--green); color: white; }
+        .btn-next { background: #555; color: white; font-size: 0.9rem; padding: 8px 20px; }
         .btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
         /* الكيبورد */
@@ -103,12 +103,13 @@
     <div id="game-screen" class="screen">
         <div id="game-layout">
             <div class="header-area">
-                <div id="round-label" style="font-size: 1.6rem; font-weight: 900; color: var(--gold);">الجولة الأولى: جولة الدوامة</div>
+                <div id="round-label" style="font-size: 1.3rem; font-weight: 900; color: var(--gold);">الجولة الأولى: جولة الدوامة</div>
                 <div id="players-row"></div>
-            </div>
+                <button id="next-question-btn" class="btn btn-next">تغيير السؤال ↻</button> </div>
 
             <div class="board-area">
-                <div id="cat-label">الفئة: ---</div> <div id="phrase-display"></div>
+                <div id="cat-label">الفئة: ---</div>
+                <div id="phrase-display"></div>
             </div>
 
             <div class="wheel-area">
@@ -120,7 +121,7 @@
 
             <div class="controls-area">
                 <button id="spin-btn" class="btn btn-spin">لف الدوامة</button>
-                <button id="vowel-btn" class="btn" style="background:#00cec9; color:#fff" disabled>حرف مساعد (250)</button>
+                <button id="vowel-btn" class="btn btn-vowel" disabled>حرف مساعد (250)</button>
                 <button id="solve-btn" class="btn btn-solve">حل اللغز</button>
             </div>
         </div>
@@ -133,11 +134,11 @@
         </div>
     </div>
 
-    <audio id="snd-spin" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" preload="auto"></audio>
-    <audio id="snd-correct" src="https://www.soundjay.com/buttons/sounds/button-3.mp3" preload="auto"></audio>
-    <audio id="snd-wrong" src="https://www.soundjay.com/buttons/sounds/button-10.mp3" preload="auto"></audio>
-    <audio id="snd-round-win" src="https://www.soundjay.com/misc/sounds/success-fanfare-trumpets-10.mp3" preload="auto"></audio>
-    <audio id="snd-total-win" src="https://www.soundjay.com/misc/sounds/applause-01.mp3" preload="auto"></audio>
+    <audio id="snd-spin" src="https://actions.google.com/sounds/v1/science_fiction/glitch_low_frequency.ogg" preload="auto"></audio>
+    <audio id="snd-correct" src="https://actions.google.com/sounds/v1/cartoon/clown_horn_accent.ogg" preload="auto"></audio>
+    <audio id="snd-wrong" src="https://actions.google.com/sounds/v1/cartoon/slide_whistle_to_low.ogg" preload="auto"></audio>
+    <audio id="snd-round-win" src="https://actions.google.com/sounds/v1/human/applause.ogg" preload="auto"></audio>
+    <audio id="snd-total-win" src="https://actions.google.com/sounds/v1/human/cheer.ogg" preload="auto"></audio>
 
     <script>
         const questions = [
@@ -145,25 +146,20 @@
             {"category": "أمثال شعبية", "phrase": "الوقت كالسيف"},
             {"category": "تقنية", "phrase": "الذكاء الاصطناعي"},
             {"category": "معلومات عامة", "phrase": "المملكة العربية السعودية"},
-            {"category": "رياضة", "phrase": "نادي الهلال زعيم اسيا"}
+            {"category": "رياضة", "phrase": "نادي الهلال زعيم اسيا"},
+            {"category": "تاريخ", "phrase": "فتح مكة المكرمة"}
         ];
 
         let players = [], currentIdx = 0, phrase = "", used = [], rotation = 0, wheelValue = 0, round = 1;
         const segments = [100, 200, 500, "إفلاس", 1000, 1500, "راحت عليك", 300, 700, 250];
 
-        // تنشيط الأصوات لتجنب قيود المتصفح
-        function unlockAudio() {
-            const audios = ['snd-spin', 'snd-correct', 'snd-wrong', 'snd-round-win', 'snd-total-win'];
-            audios.forEach(id => {
-                const a = document.getElementById(id);
-                a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
-            });
-        }
-
+        // أهم وظيفة لحل مشكلة الصوت في المتصفحات
         function playSound(id) {
             const s = document.getElementById(id);
-            s.currentTime = 0;
-            s.play().catch(() => {});
+            if (s) {
+                s.currentTime = 0;
+                s.play().catch(() => console.log("الصوت محجوب حتى يتم التفاعل"));
+            }
         }
 
         function normalize(c) {
@@ -185,7 +181,12 @@
         }
 
         document.getElementById('start-game').onclick = () => {
-            unlockAudio(); // فك قفل الأصوات
+            // "تنشيط" الأصوات برمجياً عند أول ضغطة
+            ['snd-spin', 'snd-correct', 'snd-wrong', 'snd-round-win', 'snd-total-win'].forEach(id => {
+                const a = document.getElementById(id);
+                a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
+            });
+
             for(let i=1; i<=3; i++) players.push({name: document.getElementById('n'+i).value, score: 0});
             document.getElementById('setup-screen').classList.remove('active');
             document.getElementById('game-screen').classList.add('active');
@@ -233,12 +234,17 @@
             updateUI();
         }
 
+        // تفعيل زر تغيير السؤال
+        document.getElementById('next-question-btn').onclick = () => {
+            initRound();
+            announce("سؤال جديد", "تم تغيير السؤال بنجاح", 1500);
+        };
+
         document.getElementById('spin-btn').onclick = () => {
             playSound('snd-spin');
             rotation += 1800 + Math.random()*360;
             const canvas = document.getElementById('wheelCanvas');
             canvas.style.transform = `rotate(${rotation}deg)`;
-            canvas.style.transition = "transform 4s cubic-bezier(0.1, 0, 0.1, 1)";
             setTimeout(() => {
                 const deg = rotation % 360;
                 const idx = Math.floor(((360 - deg + 270) % 360) / (360/segments.length));
@@ -283,7 +289,7 @@
             playSound('snd-round-win');
             round++;
             if (round <= 2) {
-                announce("أحسنت!", "ننتقل للجولة التالية..", 3000);
+                announce("أحسنت!", "ننتقل للجولة الأخيرة..", 3000);
                 setTimeout(startSequence, 3100);
             } else {
                 startSequence();
