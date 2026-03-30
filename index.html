@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>فانوس - نسخة منصور الاحترافية</title>
+    <title>فانوس - نسخة منصور الاحترافية المحدثة</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #ffd700; --red: #e94560; --navy: #1a1a2e; --glass: rgba(255, 255, 255, 0.05); }
+        :root { --gold: #ffd700; --red: #e94560; --navy: #1a1a2e; --glass: rgba(255, 255, 255, 0.05); --green: #2ecc71; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; font-family: 'Cairo', sans-serif; background: #0a0a12; color: white; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         
@@ -15,38 +15,44 @@
 
         /* شاشة الإعداد */
         .glass-card { background: var(--glass); backdrop-filter: blur(15px); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: none; font-family: inherit; font-weight: bold; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: none; font-family: inherit; font-weight: bold; text-align: center; }
         .main-btn { background: var(--gold); color: #000; border: none; padding: 15px 40px; border-radius: 30px; font-weight: 900; cursor: pointer; font-size: 1.2rem; transition: 0.3s; width: 100%; }
 
         /* لوحة اللعبة */
-        .top-nav { display: flex; gap: 10px; margin-bottom: 20px; }
-        .badge { background: var(--glass); padding: 8px 15px; border-radius: 20px; border: 1px solid var(--gold); font-size: 0.9rem; }
+        .top-nav { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; justify-content: center; }
+        .badge { background: var(--glass); padding: 5px 12px; border-radius: 15px; border: 1px solid var(--gold); font-size: 0.8rem; }
         
-        #phrase-display { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin: 20px 0; min-height: 100px; }
-        .letter-box { width: 35px; height: 45px; background: #fff; color: transparent; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 900; transition: 0.5s; }
+        #phrase-display { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin: 15px 0; min-height: 80px; width: 100%; }
+        .letter-box { width: 32px; height: 42px; background: #fff; color: transparent; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; transition: 0.5s; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         .letter-box.revealed { color: #000; transform: rotateY(360deg); }
-        .letter-box.space { background: transparent; width: 15px; }
+        .letter-box.space { background: transparent; width: 12px; box-shadow: none; }
 
         /* العجلة */
-        .wheel-container { position: relative; width: 300px; height: 300px; margin: 10px auto; }
+        .wheel-container { position: relative; width: 280px; height: 280px; margin: 10px auto; transition: 0.3s; }
         .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 30px; color: var(--red); z-index: 10; text-shadow: 0 2px 5px #000; }
-        #wheelCanvas { width: 100%; height: 100%; border-radius: 50%; border: 5px solid #fff; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        #wheelCanvas { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #fff; }
 
         /* اللاعبين والتحكم */
-        #players-sidebar { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; width: 100%; }
-        .p-tag { background: var(--glass); padding: 10px; border-radius: 10px; font-size: 0.8rem; border-bottom: 3px solid transparent; min-width: 80px; }
-        .p-tag.active { border-bottom-color: var(--gold); background: rgba(255,215,0,0.1); }
+        #players-sidebar { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; width: 100%; overflow-x: auto; padding-bottom: 5px; }
+        .p-tag { background: var(--glass); padding: 8px; border-radius: 10px; font-size: 0.75rem; border: 2px solid transparent; min-width: 85px; flex-shrink: 0; }
+        .p-tag.active { border-color: var(--gold); background: rgba(255,215,0,0.15); transform: scale(1.05); }
 
-        .controls { display: flex; gap: 10px; margin-top: 10px; }
-        .btn { padding: 10px 20px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
+        .controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+        .btn { padding: 10px 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-family: inherit; font-size: 0.85rem; }
         .btn-spin { background: var(--red); color: white; }
         .btn-vowel { background: #00cec9; color: white; }
+        .btn-solve { background: var(--green); color: white; }
+        .btn-next { background: #555; color: white; margin-top: 5px; }
 
-        /* الكيبورد */
-        #keyboard-box { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.9); padding: 15px; display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; z-index: 100; border-radius: 20px 20px 0 0; }
-        .key { padding: 10px; min-width: 35px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; background: #fff; color: #000; }
-        .key.used { opacity: 0.2; }
+        /* نوافذ الإدخال (الكيبورد والحل) */
+        .modal-overlay { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); padding: 20px; z-index: 1000; border-radius: 25px 25px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
+        #keyboard-keys { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+        .key { padding: 12px; min-width: 40px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; background: #fff; color: #000; font-size: 1.1rem; }
+        .key.used { opacity: 0.2; background: #999; }
         
+        #solve-section { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        #solve-input { width: 90%; background: #fff; color: #000; font-size: 1.2rem; }
+
         .hidden { display: none !important; }
     </style>
 </head>
@@ -54,7 +60,8 @@
 
     <div id="setup-screen" class="screen active">
         <div class="glass-card">
-            <h1 style="color:var(--gold)">فـانـوس</h1>
+            <h1 style="color:var(--gold); margin:0 0 10px 0;">فـانـوس</h1>
+            <label style="font-size: 0.9rem;">اختر عدد المتسابقين:</label>
             <select id="p-count">
                 <option value="2">لاعبين (2)</option>
                 <option value="3" selected>ثلاثة لاعبين (3)</option>
@@ -62,27 +69,46 @@
             </select>
             <div id="p-names"></div>
             <input type="number" id="t-score" value="3000" placeholder="هدف الفوز">
-            <button id="start-btn" class="main-btn">دخول اللعبة</button>
+            <button id="start-btn" class="main-btn">دخول المنافسة</button>
         </div>
     </div>
 
     <div id="game-screen" class="screen">
         <div class="top-nav">
             <div class="badge">الفئة: <span id="cat-name">---</span></div>
-            <div class="badge">الهدف: <span id="goal-val">0</span></div>
+            <div class="badge" style="border-color:var(--green)">الهدف: <span id="goal-val">0</span></div>
+            <button id="next-q-btn" class="btn btn-next">تغيير السؤال ↻</button>
         </div>
+
         <div id="phrase-display"></div>
         <div id="players-sidebar"></div>
+
         <div class="wheel-container">
             <div class="pointer">▼</div>
             <canvas id="wheelCanvas" width="400" height="400"></canvas>
         </div>
+
         <div class="controls">
             <button id="spin-btn" class="btn btn-spin">لف العجلة</button>
             <button id="vowel-btn" class="btn btn-vowel" disabled>مساعدة (250)</button>
+            <button id="solve-btn" class="btn btn-solve">حل اللغز</button>
         </div>
-        <div id="keyboard-box" class="hidden">
-            <div id="keys"></div>
+
+        <div id="interaction-modal" class="modal-overlay hidden">
+            <div id="keyboard-section">
+                <p id="kb-msg" style="margin-bottom:10px; color:var(--gold)"></p>
+                <div id="keyboard-keys"></div>
+                <button onclick="closeModal()" style="margin-top:15px; background:none; border:1px solid #fff; color:#fff; padding:5px 15px; border-radius:10px;">إلغاء</button>
+            </div>
+            
+            <div id="solve-section" class="hidden">
+                <p style="color:var(--gold)">اكتب الإجابة كاملة وبدقة:</p>
+                <input type="text" id="solve-input" placeholder="اكتب الجملة هنا...">
+                <div style="display:flex; gap:10px; width:90%">
+                    <button id="confirm-solve-btn" class="main-btn" style="flex:2">تأكيد الحل</button>
+                    <button onclick="closeModal()" class="main-btn" style="flex:1; background:#555; color:#fff">تراجع</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -92,48 +118,60 @@
     <audio id="s-win" src="https://www.soundjay.com/misc/sounds/success-fanfare-trumpets-10.mp3"></audio>
 
     <script>
+        // مصفوفة الأسئلة (يمكنك إضافة الـ 200 جملة هنا)
         const questions = [
             {"category": "كرة قدم", "phrase": "ريال مدريد نادي القرن"},
             {"category": "أمثال شعبية", "phrase": "الوقت كالسيف"},
             {"category": "تقنية", "phrase": "الذكاء الاصطناعي"},
-            {"category": "معلومات", "phrase": "المملكة العربية السعودية"}
+            {"category": "معلومات", "phrase": "المملكة العربية السعودية"},
+            {"category": "أمثال شعبية", "phrase": "الصمت حكمه"},
+            {"category": "رياضة", "phrase": "نادي الهلال السعودي"},
+            {"category": "معالم", "phrase": "برج إيفل في باريس"}
         ];
 
         let players = [], currentIdx = 0, target = 3000, phrase = "", used = [], rotation = 0, wheelValue = 0;
         const segments = [100, 200, 500, "إفلاس", 1000, 1500, "راحت عليك", 300, 700, 250];
 
         // إعداد الأسماء
-        const pCount = document.getElementById('p-count');
-        const pNames = document.getElementById('p-names');
+        const pCountSelect = document.getElementById('p-count');
+        const pNamesDiv = document.getElementById('p-names');
         function updateInputs() {
-            pNames.innerHTML = '';
-            for(let i=1; i<=pCount.value; i++) pNames.innerHTML += `<input type="text" id="n${i}" value="لاعب ${i}">`;
+            pNamesDiv.innerHTML = '';
+            for(let i=1; i<=pCountSelect.value; i++) pNamesDiv.innerHTML += `<input type="text" id="n${i}" value="متسابق ${i}">`;
         }
-        pCount.onchange = updateInputs; updateInputs();
+        pCountSelect.onchange = updateInputs; updateInputs();
 
         // بدء اللعبة
         document.getElementById('start-btn').onclick = () => {
-            target = document.getElementById('t-score').value;
-            for(let i=1; i<=pCount.value; i++) players.push({name: document.getElementById('n'+i).value, score:0});
+            target = parseInt(document.getElementById('t-score').value);
+            const count = parseInt(pCountSelect.value);
+            players = [];
+            for(let i=1; i<=count; i++) {
+                players.push({name: document.getElementById('n'+i).value, score: 0});
+            }
             document.getElementById('setup-screen').classList.remove('active');
             document.getElementById('game-screen').classList.add('active');
             document.getElementById('goal-val').innerText = target;
-            drawWheel(); initRound();
+            drawWheel(); 
+            initRound();
         };
 
         function drawWheel() {
-            const ctx = document.getElementById('wheelCanvas').getContext('2d');
+            const canvas = document.getElementById('wheelCanvas');
+            const ctx = canvas.getContext('2d');
             const step = (Math.PI*2)/segments.length;
+            ctx.clearRect(0,0,400,400);
             segments.forEach((s, i) => {
                 ctx.beginPath(); ctx.moveTo(200,200); ctx.arc(200,200,190, i*step, (i+1)*step);
                 ctx.fillStyle = i%2==0 ? "#2d3436" : "#e94560";
                 if(s=="إفلاس") ctx.fillStyle="#000"; if(s=="راحت عليك") ctx.fillStyle="#555";
-                ctx.fill(); ctx.strokeStyle="#fff"; ctx.stroke();
+                ctx.fill(); ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.stroke();
                 ctx.save(); ctx.translate(200,200); ctx.rotate(i*step + step/2);
                 ctx.fillStyle="#fff"; ctx.font="bold 20px Cairo"; ctx.textAlign="right"; ctx.fillText(s, 170, 8); ctx.restore();
             });
         }
 
+        // دوران العجلة
         document.getElementById('spin-btn').onclick = () => {
             document.getElementById('s-spin').play().catch(()=>{});
             const spin = 1800 + Math.random()*360;
@@ -144,13 +182,17 @@
 
             setTimeout(() => {
                 const deg = rotation % 360;
-                // الحسبة الذهبية: السهم في الأعلى (درجة 270)
                 const idx = Math.floor(((360 - deg + 270) % 360) / (360/segments.length));
                 wheelValue = segments[idx];
                 
-                if(wheelValue=="إفلاس") { alert("إفلاس!"); players[currentIdx].score=0; nextTurn(); }
-                else if(wheelValue=="راحت عليك") { alert("راحت عليك!"); nextTurn(); }
-                else { showKB(false); }
+                if(wheelValue=="إفلاس") {
+                    alert("إفلاس! فقد " + players[currentIdx].name + " رصيده.");
+                    players[currentIdx].score = 0; nextTurn();
+                } else if(wheelValue=="راحت عليك") {
+                    alert("للأسف.. راحت عليك الدور!"); nextTurn();
+                } else {
+                    openKeyboard(false);
+                }
             }, 4000);
         };
 
@@ -167,36 +209,105 @@
             updateUI();
         }
 
-        function showKB(v) {
-            document.getElementById('keyboard-box').classList.remove('hidden');
-            const k = document.getElementById('keys'); k.innerHTML = '';
-            const lets = v ? ['أ','و','ي'] : "بتثجحخدذرزسشصضطظعغفقكلمنهـ".split('');
-            lets.forEach(l => {
-                const b = document.createElement('button'); b.className = `key ${used.includes(l)?'used':''}`;
-                b.innerText = l; if(!used.includes(l)) b.onclick = () => handle(l, v);
-                k.appendChild(b);
+        // تغيير السؤال
+        document.getElementById('next-q-btn').onclick = () => {
+            if(confirm("هل تريد الانتقال للسؤال التالي؟ لن يتم تصفير النقاط.")) initRound();
+        };
+
+        // إدارة النوافذ (مودال)
+        function openKeyboard(isVowel) {
+            document.getElementById('interaction-modal').classList.remove('hidden');
+            document.getElementById('keyboard-section').classList.remove('hidden');
+            document.getElementById('solve-section').classList.add('hidden');
+            
+            document.getElementById('kb-msg').innerText = isVowel ? "اختر حرف مساعدة (خصم 250):" : "وقفت العجلة على " + wheelValue + " نقطة. اختر حرفاً:";
+            
+            const keysCont = document.getElementById('keyboard-keys');
+            keysCont.innerHTML = '';
+            const letters = isVowel ? ['أ','و','ي'] : "بتثجحخدذرزسشصضطظعغفقكلمنهـ".split('');
+            
+            letters.forEach(l => {
+                const btn = document.createElement('button');
+                btn.className = `key ${used.includes(l)?'used':''}`;
+                btn.innerText = l;
+                if(!used.includes(l)) btn.onclick = () => handleChoice(l, isVowel);
+                keysCont.appendChild(btn);
             });
         }
 
-        function handle(l, v) {
-            used.push(l); document.getElementById('keyboard-box').classList.add('hidden');
+        function closeModal() { document.getElementById('interaction-modal').classList.add('hidden'); }
+
+        // معالجة اختيار الحرف
+        function handleChoice(l, isVowel) {
+            used.push(l); closeModal();
             let count = 0;
+            const boxes = document.querySelectorAll('.letter-box');
             phrase.split('').forEach((c, i) => {
-                if(c == l) { document.querySelectorAll('.letter-box')[i].classList.add('revealed'); count++; }
+                if(c == l) { boxes[i].classList.add('revealed'); count++; }
             });
 
             if(count > 0) {
                 document.getElementById('s-correct').play().catch(()=>{});
-                if(v) players[currentIdx].score -= 250;
+                if(isVowel) players[currentIdx].score -= 250;
                 else players[currentIdx].score += (wheelValue * count);
-                if(isWin()) { document.getElementById('s-win').play(); alert("مبروك! فاز " + players[currentIdx].name); location.reload(); }
+                
+                checkPhraseComplete();
             } else {
-                document.getElementById('s-wrong').play().catch(()=>{}); nextTurn();
+                document.getElementById('s-wrong').play().catch(()=>{});
+                if(isVowel) players[currentIdx].score -= 250;
+                alert("الحرف غير موجود!");
+                nextTurn();
             }
             updateUI();
         }
 
+        // زر حل اللغز
+        document.getElementById('solve-btn').onclick = () => {
+            document.getElementById('interaction-modal').classList.remove('hidden');
+            document.getElementById('keyboard-section').classList.add('hidden');
+            document.getElementById('solve-section').classList.remove('hidden');
+            document.getElementById('solve-input').value = '';
+            document.getElementById('solve-input').focus();
+        };
+
+        document.getElementById('confirm-solve-btn').onclick = () => {
+            const attempt = document.getElementById('solve-input').value.trim();
+            if(attempt === phrase) {
+                document.getElementById('s-win').play();
+                alert("إجابة صحيحة! " + players[currentIdx].name + " هو الفائز في هذه الجولة.");
+                // إضافة نقاط مكافأة للحل (مثلاً 500)
+                players[currentIdx].score += 500;
+                if(players[currentIdx].score >= target) {
+                    alert("تهانينا! " + players[currentIdx].name + " وصل للهدف وفاز باللقب!");
+                    location.reload();
+                } else {
+                    initRound();
+                    closeModal();
+                }
+            } else {
+                alert("إجابة خاطئة! انتقل الدور.");
+                closeModal();
+                nextTurn();
+            }
+        };
+
+        function checkPhraseComplete() {
+            const revealed = document.querySelectorAll('.letter-box.revealed').length;
+            const total = phrase.replace(/\s/g, '').length;
+            if(revealed === total) {
+                document.getElementById('s-win').play();
+                alert("رائع! اكتملت الجملة. فاز " + players[currentIdx].name);
+                if(players[currentIdx].score >= target) {
+                    alert("المتسابق " + players[currentIdx].name + " هو بطل اللعبة!");
+                    location.reload();
+                } else {
+                    initRound();
+                }
+            }
+        }
+
         function nextTurn() { currentIdx = (currentIdx + 1) % players.length; updateUI(); }
+
         function updateUI() {
             const side = document.getElementById('players-sidebar'); side.innerHTML = '';
             players.forEach((p, i) => {
@@ -204,8 +315,8 @@
             });
             document.getElementById('vowel-btn').disabled = players[currentIdx].score < 250;
         }
-        function isWin() { return players[currentIdx].score >= target; }
-        document.getElementById('vowel-btn').onclick = () => showKB(true);
+
+        document.getElementById('vowel-btn').onclick = () => openKeyboard(true);
     </script>
 </body>
 </html>
