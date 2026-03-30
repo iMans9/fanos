@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة فانوس - Wheel of Fortune</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="lobby-screen" class="screen active">
+        <div class="lobby-content">
+            <h1>فانوس</h1>
+            <p>أدخل أسماء المتسابقين للانطلاق</p>
+            <div class="input-group">
+                <input type="text" id="p1-name" placeholder="اسم اللاعب الأول" value="لاعب 1">
+                <input type="text" id="p2-name" placeholder="اسم اللاعب الثاني" value="لاعب 2">
+                <input type="text" id="p3-name" placeholder="اسم اللاعب الثالث" value="لاعب 3">
+            </div>
+            <button id="start-game-btn">انطلق نحو الفانوس</button>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div id="game-container">
+            
+            <header id="board-section">
+                <div class="top-bar">
+                    <div id="category-display">الفئة: <span id="category-name">---</span></div>
+                    <div id="round-display">الجولة: <span id="round-number">1</span> (أساسية)</div>
+                </div>
+                <div id="phrase-display">
+                    </div>
+                <div id="game-message">دور Player 1</div>
+            </header>
+
+            <main id="action-section">
+                <aside class="players-sidebar">
+                    <div class="player-card" id="player-0">
+                        <div class="timer-dot"></div>
+                        <div class="player-info">
+                            <span class="name">لاعب 1</span>
+                            <span class="total-score">الإجمالي: 0</span>
+                        </div>
+                        <div class="current-round-score">الجولة: <span>0</span></div>
+                    </div>
+                    <div class="player-card" id="player-1">
+                        <div class="timer-dot"></div>
+                        <div class="player-info">
+                            <span class="name">لاعب 2</span>
+                            <span class="total-score">الإجمالي: 0</span>
+                        </div>
+                        <div class="current-round-score">الجولة: <span>0</span></div>
+                    </div>
+                    <div class="player-card" id="player-2">
+                        <div class="timer-dot"></div>
+                        <div class="player-info">
+                            <span class="name">لاعب 3</span>
+                            <span class="total-score">الإجمالي: 0</span>
+                        </div>
+                        <div class="current-round-score">الجولة: <span>0</span></div>
+                    </div>
+                </aside>
+
+                <div id="central-play-area">
+                    <div id="wheel-area" class="active-area">
+                        <div class="wheel-wrapper">
+                            <div id="wheel-pointer">▼</div>
+                            <canvas id="wheelCanvas" width="400" height="400"></canvas>
+                        </div>
+                        <button id="spin-btn">لف العجلة</button>
+                    </div>
+
+                    <div id="catch-area" class="hidden-area">
+                        <h2>جولة الصيد! (الأسرع يربح 100)</h2>
+                        <p>سيتم كشف الحروف تلقائياً، اضغط على زر "صيد" الخاص بك إذا عرفت الحل.</p>
+                        <div class="catch-buttons">
+                            <button id="catch-p1" class="catch-btn p1-btn">صيد (P1)</button>
+                            <button id="catch-p2" class="catch-btn p2-btn">صيد (P2)</button>
+                            <button id="catch-p3" class="catch-btn p3-btn">صيد (P3)</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer id="controls-section">
+                <div class="basic-actions">
+                    <button id="solve-btn">أعرف الحل!</button>
+                    <button id="buy-vowel-btn">شراء حرف علة (250)</button>
+                </div>
+                <div id="interaction-box" class="hidden">
+                    <p id="interaction-prompt">اختر حرفاً صامتاً:</p>
+                    <div id="keyboard">
+                        </div>
+                    <input type="text" id="solve-input" placeholder="اكتب الجملة كاملة هنا..." class="hidden">
+                    <button id="submit-solve" class="hidden">تأكيد الحل</button>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <div id="game-over-screen" class="screen">
+        <div class="lobby-content">
+            <h1>تتويج البطل</h1>
+            <p>الفائز هو:</p>
+            <div id="winner-name" class="highlighted-name">لاعب 1</div>
+            <div id="winner-score" class="winner-score">النتيجة الإجمالية: 5000</div>
+            <button onclick="location.reload()">لعب مرة أخرى</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
