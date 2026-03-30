@@ -3,59 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>فانوس - نسخة منصور الاحترافية المحدثة</title>
+    <title>فانوس - تجربة احترافية</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --gold: #ffd700; --red: #e94560; --navy: #1a1a2e; --glass: rgba(255, 255, 255, 0.05); --green: #2ecc71; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; font-family: 'Cairo', sans-serif; background: #0a0a12; color: white; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        
+        .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .screen.active { display: flex; }
+
+        /* اللوحات الإعلانية (التنبيهات الجديدة) */
+        #announcement-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2000; opacity: 0; pointer-events: none; transition: 0.5s;
+        }
+        #announcement-overlay.show { opacity: 1; pointer-events: auto; }
+        .announcement-card {
+            transform: scale(0.5); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center; width: 90%; max-width: 600px;
+        }
+        #announcement-overlay.show .announcement-card { transform: scale(1); }
+        .big-text { font-size: 3rem; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px rgba(255,215,0,0.5); margin: 0; }
+        .sub-text { font-size: 1.5rem; color: #fff; margin-top: 10px; }
+
+        /* التصميم العام */
         .glass-card { background: var(--glass); backdrop-filter: blur(15px); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; }
         input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: none; font-family: inherit; font-weight: bold; text-align: center; }
-        .main-btn { background: var(--gold); color: #000; border: none; padding: 15px 40px; border-radius: 30px; font-weight: 900; cursor: pointer; font-size: 1.2rem; transition: 0.3s; width: 100%; }
-        .top-nav { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; justify-content: center; }
-        .badge { background: var(--glass); padding: 5px 12px; border-radius: 15px; border: 1px solid var(--gold); font-size: 0.8rem; }
-        #phrase-display { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin: 15px 0; min-height: 80px; width: 100%; }
-        .letter-box { width: 32px; height: 42px; background: #fff; color: transparent; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; transition: 0.5s; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .main-btn { background: var(--gold); color: #000; border: none; padding: 15px 40px; border-radius: 30px; font-weight: 900; cursor: pointer; font-size: 1.2rem; transition: 0.3s; }
+
+        #phrase-display { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin: 20px 0; width: 100%; }
+        .letter-box { width: 35px; height: 50px; background: #fff; color: transparent; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 900; transition: 0.5s; }
         .letter-box.revealed { color: #000; transform: rotateY(360deg); }
-        .letter-box.space { background: transparent; width: 12px; box-shadow: none; }
-        .wheel-container { position: relative; width: 260px; height: 260px; margin: 10px auto; }
-        .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 30px; color: var(--red); z-index: 10; text-shadow: 0 2px 5px #000; }
+        .letter-box.space { background: transparent; width: 15px; }
+
+        .wheel-container { position: relative; width: 280px; height: 280px; margin: 10px auto; }
         #wheelCanvas { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #fff; }
-        #players-sidebar { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; width: 100%; overflow-x: auto; padding-bottom: 5px; }
-        .p-tag { background: var(--glass); padding: 8px; border-radius: 10px; font-size: 0.75rem; border: 2px solid transparent; min-width: 85px; flex-shrink: 0; }
-        .p-tag.active { border-color: var(--gold); background: rgba(255,215,0,0.15); transform: scale(1.05); }
-        .controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-        .btn { padding: 10px 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-family: inherit; font-size: 0.85rem; }
+        .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 30px; color: var(--red); z-index: 10; }
+
+        #players-sidebar { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; width: 100%; }
+        .p-tag { background: var(--glass); padding: 10px; border-radius: 12px; font-size: 0.8rem; border-bottom: 4px solid transparent; min-width: 90px; }
+        .p-tag.active { border-bottom-color: var(--gold); background: rgba(255,215,0,0.1); transform: scale(1.1); }
+
+        .controls { display: flex; gap: 10px; }
+        .btn { padding: 12px 20px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; }
         .btn-spin { background: var(--red); color: white; }
-        .btn-vowel { background: #00cec9; color: white; }
         .btn-solve { background: var(--green); color: white; }
-        .modal-overlay { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); padding: 20px; z-index: 1000; border-radius: 25px 25px 0 0; }
-        #keyboard-keys { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
-        .key { padding: 12px; min-width: 40px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; background: #fff; color: #000; font-size: 1.1rem; }
-        .key.used { opacity: 0.2; background: #999; }
-        #solve-section { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+
+        .modal-overlay { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); padding: 20px; z-index: 1000; border-radius: 30px 30px 0 0; }
+        #keyboard-keys { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .key { padding: 12px; min-width: 45px; border-radius: 8px; border: none; font-weight: bold; background: #fff; font-size: 1.2rem; cursor: pointer; }
+        .key.used { opacity: 0.2; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
+    <div id="announcement-overlay">
+        <div class="announcement-card">
+            <h1 id="main-announcement" class="big-text">الجولة الأولى</h1>
+            <p id="sub-announcement" class="sub-text">استعدوا للدوامة!</p>
+            <button id="close-announcement" class="main-btn" style="margin-top:30px; display:none;">استمرار</button>
+        </div>
+    </div>
+
     <div id="setup-screen" class="screen active">
         <div class="glass-card">
-            <h1 style="color:var(--gold); margin:0 0 10px 0;">فـانـوس</h1>
-            <select id="p-count"></select>
+            <h1 style="color:var(--gold)">فـانـوس</h1>
+            <select id="p-count">
+                <option value="2">2 لاعبين</option>
+                <option value="3" selected>3 لاعبين</option>
+                <option value="4">4 لاعبين</option>
+            </select>
             <div id="p-names"></div>
             <input type="number" id="t-score" value="3000">
-            <button id="start-btn" class="main-btn">ابدأ المنافسة</button>
+            <button id="start-btn" class="main-btn">دخول المنافسة</button>
         </div>
     </div>
 
     <div id="game-screen" class="screen">
-        <div class="top-nav">
-            <div class="badge">الفئة: <span id="cat-name">---</span></div>
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <div class="badge" id="cat-name">الفئة: ---</div>
             <div class="badge" style="border-color:var(--green)">الهدف: <span id="goal-val">0</span></div>
-            <button id="next-q-btn" class="btn" style="background:#555; color:#fff">تغيير السؤال ↻</button>
         </div>
         <div id="phrase-display"></div>
         <div id="players-sidebar"></div>
@@ -65,27 +96,21 @@
         </div>
         <div class="controls">
             <button id="spin-btn" class="btn btn-spin">لف العجلة</button>
-            <button id="vowel-btn" class="btn btn-vowel" disabled>مساعدة (250)</button>
+            <button id="vowel-btn" class="btn" style="background:#00cec9; color:#fff" disabled>مساعدة</button>
             <button id="solve-btn" class="btn btn-solve">حل اللغز</button>
         </div>
+
         <div id="interaction-modal" class="modal-overlay hidden">
             <div id="keyboard-section">
-                <p id="kb-msg" style="margin-bottom:10px; color:var(--gold)"></p>
                 <div id="keyboard-keys"></div>
-                <button onclick="closeModal()" style="margin-top:15px; background:none; border:1px solid #fff; color:#fff; padding:5px 15px; border-radius:10px;">إلغاء</button>
+                <button onclick="closeModal()" style="margin-top:10px; background:none; color:#fff; border:1px solid #fff; border-radius:10px; padding:5px 15px;">إلغاء</button>
             </div>
             <div id="solve-section" class="hidden">
-                <p style="color:var(--gold)">اكتب الإجابة كاملة وبدقة:</p>
-                <input type="text" id="solve-input" placeholder="اكتب الجملة هنا...">
+                <input type="text" id="solve-input" placeholder="اكتب الجملة كاملة...">
                 <button id="confirm-solve-btn" class="main-btn">تأكيد الحل</button>
             </div>
         </div>
     </div>
-
-    <audio id="s-spin" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"></audio>
-    <audio id="s-correct" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
-    <audio id="s-wrong" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
-    <audio id="s-win" src="https://www.soundjay.com/misc/sounds/success-fanfare-trumpets-10.mp3"></audio>
 
     <script>
         const questions = [
@@ -93,73 +118,92 @@
             {"category": "أمثال شعبية", "phrase": "الوقت كالسيف"},
             {"category": "تقنية", "phrase": "الذكاء الاصطناعي"},
             {"category": "معلومات", "phrase": "المملكة العربية السعودية"},
-            {"category": "رياضة", "phrase": "نادي الهلال السعودي"},
-            {"category": "معالم", "phrase": "برج إيفل في باريس"}
+            {"category": "رياضة", "phrase": "نادي الهلال السعودي"}
         ];
 
-        let players = [], currentIdx = 0, target = 3000, phrase = "", used = [], rotation = 0, wheelValue = 0;
+        let players = [], currentIdx = 0, target = 3000, phrase = "", used = [], rotation = 0, wheelValue = 0, roundNum = 1;
         const segments = [100, 200, 500, "إفلاس", 1000, 1500, "راحت عليك", 300, 700, 250];
 
-        // ميزة توحيد الحروف (Normalization)
-        function normalize(char) {
-            if (['أ', 'إ', 'آ', 'ا'].includes(char)) return 'ا';
-            if (['ة', 'ه'].includes(char)) return 'ه';
-            if (['ى', 'ي'].includes(char)) return 'ي';
-            return char;
+        function normalize(c) {
+            if (['أ', 'إ', 'آ', 'ا'].includes(c)) return 'ا';
+            if (['ة', 'ه'].includes(c)) return 'ه';
+            if (['ى', 'ي'].includes(c)) return 'ي';
+            return c;
         }
 
-        const pCountSelect = document.getElementById('p-count');
-        for(let i=2; i<=4; i++) pCountSelect.innerHTML += `<option value="${i}">${i} لاعبين</option>`;
-        const pNamesDiv = document.getElementById('p-names');
-        function updateInputs() {
-            pNamesDiv.innerHTML = '';
-            for(let i=1; i<=pCountSelect.value; i++) pNamesDiv.innerHTML += `<input type="text" id="n${i}" value="متسابق ${i}">`;
+        // نظام التنبيهات الجديد
+        function announce(main, sub, duration = 3000, isFinal = false) {
+            const overlay = document.getElementById('announcement-overlay');
+            document.getElementById('main-announcement').innerText = main;
+            document.getElementById('sub-announcement').innerText = sub;
+            overlay.classList.add('show');
+            
+            if(isFinal) {
+                document.getElementById('close-announcement').style.display = 'inline-block';
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            } else if(duration > 0) {
+                setTimeout(() => overlay.classList.remove('show'), duration);
+            }
         }
-        pCountSelect.onchange = updateInputs; updateInputs();
+
+        document.getElementById('close-announcement').onclick = () => location.reload();
+
+        const pCount = document.getElementById('p-count');
+        const pNames = document.getElementById('p-names');
+        function updateInputs() {
+            pNames.innerHTML = '';
+            for(let i=1; i<=pCount.value; i++) pNames.innerHTML += `<input type="text" id="n${i}" value="متسابق ${i}">`;
+        }
+        pCount.onchange = updateInputs; updateInputs();
 
         document.getElementById('start-btn').onclick = () => {
             target = parseInt(document.getElementById('t-score').value);
-            for(let i=1; i<=pCountSelect.value; i++) players.push({name: document.getElementById('n'+i).value, score: 0});
+            for(let i=1; i<=pCount.value; i++) players.push({name: document.getElementById('n'+i).value, score: 0});
             document.getElementById('setup-screen').classList.remove('active');
             document.getElementById('game-screen').classList.add('active');
             document.getElementById('goal-val').innerText = target;
-            drawWheel(); initRound();
+            drawWheel(); 
+            announce("الجولة الأولى", "استعدوا لدوامة الفانوس!");
+            initRound();
         };
 
         function drawWheel() {
-            const canvas = document.getElementById('wheelCanvas');
-            const ctx = canvas.getContext('2d');
+            const ctx = document.getElementById('wheelCanvas').getContext('2d');
             const step = (Math.PI*2)/segments.length;
             segments.forEach((s, i) => {
                 ctx.beginPath(); ctx.moveTo(200,200); ctx.arc(200,200,190, i*step, (i+1)*step);
                 ctx.fillStyle = i%2==0 ? "#2d3436" : "#e94560";
                 if(s=="إفلاس") ctx.fillStyle="#000"; if(s=="راحت عليك") ctx.fillStyle="#555";
-                ctx.fill(); ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.stroke();
+                ctx.fill(); ctx.strokeStyle="#fff"; ctx.stroke();
                 ctx.save(); ctx.translate(200,200); ctx.rotate(i*step + step/2);
                 ctx.fillStyle="#fff"; ctx.font="bold 20px Cairo"; ctx.textAlign="right"; ctx.fillText(s, 170, 8); ctx.restore();
             });
         }
 
         document.getElementById('spin-btn').onclick = () => {
-            document.getElementById('s-spin').play().catch(()=>{});
-            const spin = 1800 + Math.random()*360;
-            rotation += spin;
+            rotation += 1800 + Math.random()*360;
             document.getElementById('wheelCanvas').style.transform = `rotate(${rotation}deg)`;
-            document.getElementById('wheelCanvas').style.transition = "transform 4s cubic-bezier(0.15, 0, 0.15, 1)";
+            document.getElementById('wheelCanvas').style.transition = "transform 4s cubic-bezier(0.1, 0, 0.1, 1)";
             setTimeout(() => {
                 const deg = rotation % 360;
                 const idx = Math.floor(((360 - deg + 270) % 360) / (360/segments.length));
                 wheelValue = segments[idx];
-                if(wheelValue=="إفلاس") { alert("إفلاس!"); players[currentIdx].score=0; nextTurn(); }
-                else if(wheelValue=="راحت عليك") { alert("راحت عليك!"); nextTurn(); }
-                else openKeyboard(false);
+                if(wheelValue=="إفلاس") {
+                    announce("إفلاس!", `للأسف ${players[currentIdx].name} فقد كل نقاطه`, 2500);
+                    players[currentIdx].score = 0; nextTurn();
+                } else if(wheelValue=="راحت عليك") {
+                    announce("راحت عليك!", "ينتقل الدور للمتسابق التالي", 2000);
+                    nextTurn();
+                } else {
+                    openKeyboard(false);
+                }
             }, 4000);
         };
 
         function initRound() {
             const q = questions[Math.floor(Math.random()*questions.length)];
             phrase = q.phrase; used = [];
-            document.getElementById('cat-name').innerText = q.category;
+            document.getElementById('cat-name').innerText = "الفئة: " + q.category;
             const disp = document.getElementById('phrase-display'); disp.innerHTML = '';
             phrase.split('').forEach(c => {
                 const d = document.createElement('div');
@@ -170,7 +214,8 @@
         }
 
         function openKeyboard(isVowel) {
-            document.getElementById('interaction-modal').classList.remove('hidden');
+            const modal = document.getElementById('interaction-modal');
+            modal.classList.remove('hidden');
             document.getElementById('keyboard-section').classList.remove('hidden');
             document.getElementById('solve-section').classList.add('hidden');
             const keysCont = document.getElementById('keyboard-keys'); keysCont.innerHTML = '';
@@ -185,24 +230,15 @@
         }
 
         function handleChoice(l, isVowel) {
-            const normL = normalize(l);
-            used.push(normL); closeModal();
+            const normL = normalize(l); used.push(normL); closeModal();
             let count = 0;
-            phrase.split('').forEach((c, i) => {
-                if(normalize(c) === normL) {
-                    document.querySelectorAll('.letter-box')[i].classList.add('revealed');
-                    count++;
-                }
-            });
-
+            phrase.split('').forEach((c, i) => { if(normalize(c) === normL) { document.querySelectorAll('.letter-box')[i].classList.add('revealed'); count++; } });
             if(count > 0) {
-                document.getElementById('s-correct').play().catch(()=>{});
                 if(isVowel) players[currentIdx].score -= 250;
                 else players[currentIdx].score += (wheelValue * count);
                 checkPhraseComplete();
             } else {
-                document.getElementById('s-wrong').play().catch(()=>{});
-                if(isVowel) players[currentIdx].score -= 250;
+                announce("خطأ!", "الحرف غير موجود في الجملة", 1500);
                 nextTurn();
             }
             updateUI();
@@ -212,29 +248,28 @@
             const revealed = document.querySelectorAll('.letter-box.revealed').length;
             const total = phrase.replace(/\s/g, '').length;
             if(revealed === total) {
-                document.getElementById('s-win').play();
-                alert("صحيح! انتقل للجولة التالية مع الحفاظ على نقاطك.");
-                initRound();
+                roundNum++;
+                announce(`فاز بطل الجولة!`, `${players[currentIdx].name} حل اللغز بنجاح. مازال هناك فرصة في الجولة ${roundNum}!`, 4000);
+                setTimeout(initRound, 4100);
             }
         }
 
         document.getElementById('confirm-solve-btn').onclick = () => {
             const attempt = document.getElementById('solve-input').value.trim();
-            // مقارنة الجملة مع توحيد الحروف
-            const normAttempt = attempt.split('').map(normalize).join('');
-            const normPhrase = phrase.split('').map(normalize).join('');
-            
-            if(normAttempt === normPhrase) {
-                document.getElementById('s-win').play();
+            if(attempt.split('').map(normalize).join('') === phrase.split('').map(normalize).join('')) {
                 players[currentIdx].score += 500;
-                alert("إجابة صحيحة! ربحت 500 نقطة إضافية.");
                 if(players[currentIdx].score >= target) {
-                    alert("الفائز النهائي هو: " + players[currentIdx].name);
-                    location.reload();
+                    announce("بطل المسابقة! 🏆", `مبروك ${players[currentIdx].name} أنت الفائز بالفانوس!`, 0, true);
                 } else {
-                    initRound(); closeModal();
+                    roundNum++;
+                    announce("إجابة صحيحة!", `أبدعت يا ${players[currentIdx].name}. الجولة ${roundNum} تبدأ الآن!`, 4000);
+                    closeModal(); setTimeout(initRound, 4100);
                 }
-            } else { alert("خلف خلاف! إجابة خاطئة."); closeModal(); nextTurn(); }
+            } else {
+                announce("إجابة خاطئة!", "للأسف الإجابة غير صحيحة", 2000);
+                closeModal(); nextTurn();
+            }
+            updateUI();
         };
 
         document.getElementById('solve-btn').onclick = () => {
@@ -247,12 +282,9 @@
         function closeModal() { document.getElementById('interaction-modal').classList.add('hidden'); }
         function updateUI() {
             const side = document.getElementById('players-sidebar'); side.innerHTML = '';
-            players.forEach((p, i) => {
-                side.innerHTML += `<div class="p-tag ${i==currentIdx?'active':''}"><b>${p.name}</b><br>${p.score}</div>`;
-            });
+            players.forEach((p, i) => { side.innerHTML += `<div class="p-tag ${i==currentIdx?'active':''}"><b>${p.name}</b><br>${p.score}</div>`; });
             document.getElementById('vowel-btn').disabled = players[currentIdx].score < 250;
         }
-        document.getElementById('next-q-btn').onclick = initRound;
         document.getElementById('vowel-btn').onclick = () => openKeyboard(true);
     </script>
 </body>
