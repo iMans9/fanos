@@ -2,53 +2,73 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لعبة الفانوس - نسخة منصور الاحترافية</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الفانوس - منصور</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="game-container">
-        <header id="board">
-            <div id="category-tag">الفئة: <span id="category-name">---</span></div>
-            <div id="phrase-display"></div>
-            <div id="status-msg">انتظر تحميل اللعبة...</div>
-        </header>
 
-        <main id="game-body">
-            <aside class="players-list">
-                <div class="player-card active" id="p0">
-                    <span class="p-name">لاعب 1</span>
-                    <span class="p-score">0</span>
+    <div id="setup-screen" class="screen active">
+        <div class="glass-card">
+            <h1 class="logo">فـانـوس</h1>
+            <div class="setup-group">
+                <label>عدد المتسابقين:</label>
+                <select id="player-count">
+                    <option value="2">لاعبين (2)</option>
+                    <option value="3" selected>ثلاثة لاعبين (3)</option>
+                    <option value="4">أربعة لاعبين (4)</option>
+                </select>
+            </div>
+            
+            <div id="name-inputs" class="setup-group">
                 </div>
-                <div class="player-card" id="p1">
-                    <span class="p-name">لاعب 2</span>
-                    <span class="p-score">0</span>
-                </div>
-                <div class="player-card" id="p2">
-                    <span class="p-name">لاعب 3</span>
-                    <span class="p-score">0</span>
-                </div>
-            </aside>
 
-            <section class="wheel-section">
-                <div class="wheel-pointer">▼</div>
-                <canvas id="wheelCanvas" width="350" height="350"></canvas>
-                <div class="main-controls">
-                    <button id="spin-btn">لف العجلة</button>
-                    <button id="buy-vowel-btn" disabled>شراء حرف (250)</button>
-                    <button id="solve-btn">أعرف الحل!</button>
+            <div class="setup-group">
+                <label>هدف الفوز (نقاط):</label>
+                <input type="number" id="target-score" value="5000" step="500">
+            </div>
+
+            <button id="start-btn" class="main-btn">ابدأ اللعب الآن</button>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div class="top-bar">
+            <div class="badge">الفئة: <span id="category-name">---</span></div>
+            <div class="badge gold">الهدف: <span id="goal-display">0</span></div>
+        </div>
+
+        <div id="phrase-display"></div>
+
+        <div class="game-layout">
+            <aside id="players-sidebar"></aside>
+
+            <section class="wheel-area">
+                <div class="pointer">▼</div>
+                <canvas id="wheelCanvas" width="380" height="380"></canvas>
+                <div class="controls">
+                    <button id="spin-btn" class="control-btn spin">لف العجلة</button>
+                    <button id="buy-vowel-btn" class="control-btn vowel" disabled>حرف مساعد (250)</button>
+                    <button id="solve-btn" class="control-btn solve">حل اللغز</button>
                 </div>
             </section>
-        </main>
+        </div>
 
-        <footer id="interaction-area" class="hidden">
+        <div id="interaction-box" class="hidden">
             <div id="keyboard"></div>
-            <div id="solve-input-group" class="hidden">
-                <input type="text" id="solve-input" placeholder="اكتب الحل كاملاً هنا...">
-                <button id="confirm-solve">تأكيد</button>
-            </div>
-        </footer>
+        </div>
     </div>
+
+    <div id="winner-screen" class="screen">
+        <div class="glass-card winner-card">
+            <div class="crown">👑</div>
+            <h2 id="winner-text">مبروك للفائز!</h2>
+            <div id="final-score" class="final-points">000</div>
+            <button onclick="location.reload()" class="main-btn">لعبة جديدة</button>
+        </div>
+    </div>
+
     <script src="game.js"></script>
 </body>
 </html>
