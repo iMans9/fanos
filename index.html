@@ -163,54 +163,78 @@
         }
 
         // توحيد الألف: تحويل كل أشكال الألف إلى حرف واحد للمقارنة
-        function normalize(char) {
-            if (['أ', 'إ', 'آ', 'ا'].includes(char)) return 'ا';
-            return char;
+        // --- تحديث دالة التوحيد والمقارنة في ملف game.js ---
+
+function normalize(char) {
+    // توحيد الألف بكل أشكالها
+    if (['أ', 'إ', 'آ', 'ا'].includes(char)) return 'ا';
+    // توحيد الهاء والتاء المربوطة (طلب منصور)
+    if (['ه', 'ة'].includes(char)) return 'ه'; 
+    return char;
+}
+
+function handleChoice(l, v) {
+    used.push(l); 
+    closePopups();
+    let count = 0;
+    const boxes = document.querySelectorAll('.letter-box');
+    
+    phrase.split('').forEach((c, i) => {
+        // المقارنة الآن ذكية: هـ = ة  و  أ = ا
+        if(normalize(c) === normalize(l)) {
+            boxes[i].classList.add('revealed');
+            count++;
         }
+    });
 
-        function handleChoice(l, v) {
-            used.push(l); closePopups();
-            let count = 0;
-            const boxes = document.querySelectorAll('.letter-box');
-            phrase.split('').forEach((c, i) => {
-                // إذا كان الحرف المختار "ا"، يكشف كل أشكال الألف
-                if(normalize(c) === normalize(l)) {
-                    boxes[i].classList.add('revealed');
-                    count++;
-                }
-            });
-
-            if(count > 0) {
-                if(v) players[currentIdx].score -= 250;
-                else players[currentIdx].score += (wheelValue * count);
-                if(players[currentIdx].score >= target) { alert("👑 فاز " + players[currentIdx].name); location.reload(); }
-            } else { nextTurn(); }
-            updateUI();
+    if(count > 0) {
+        // تشغيل صوت النجاح
+        document.getElementById('s-correct').play().catch(()=>{});
+        
+        if(v) {
+            players[currentIdx].score -= 250;
+        } else {
+            players[currentIdx].score += (wheelValue * count);
         }
+        
+        // التحقق من الفوز بالنقاط
+        if(players[currentIdx].score >= target) { 
+            alert("👑 كفو يا " + players[currentIdx].name + "! وصلت للهدف وفزت باللعبة!"); 
+            location.reload(); 
+        }
+    } else {
+        // تشغيل صوت الخطأ وانتقال الدور
+        document.getElementById('s-wrong').play().catch(()=>{});
+        nextTurn();
+    }
+    updateUI();
+}
 
-        // منطق زر الحل
-        document.getElementById('solve-btn').onclick = () => {
-            document.getElementById('solve-box').classList.add('open');
-            document.getElementById('solve-input').focus();
-        };
+// --- تحديث زر "تأكيد الحل" ليكون ذكياً أيضاً في المقارنة ---
 
-        document.getElementById('confirm-solve').onclick = () => {
-            const val = document.getElementById('solve-input').value.trim();
-            // مقارنة الحل (مع تجاهل الهمزات لسهولة اللعب)
-            const normPhrase = phrase.split('').map(normalize).join('');
-            const normInput = val.split('').map(normalize).join('');
+document.getElementById('confirm-solve').onclick = () => {
+    const val = document.getElementById('solve-input').value.trim();
+    
+    // تحويل الجملة الأصلية والمدخلة إلى صيغة موحدة للمقارنة
+    const normPhrase = phrase.split('').map(normalize).join('').replace(/\s/g, '');
+    const normInput = val.split('').map(normalize).join('').replace(/\s/g, '');
 
-            if(normInput === normPhrase) {
-                alert("✅ حل عبقري! ربحت الجولة.");
-                players[currentIdx].score += 1000; // مكافأة الحل
-                if(players[currentIdx].score >= target) { alert("👑 مبروك الفوز!"); location.reload(); }
-                else { initRound(); }
-            } else {
-                alert("❌ حل خاطئ! انتقل الدور.");
-                nextTurn();
-            }
-            closePopups();
-        };
+    if(normInput === normPhrase) {
+        alert("✅ ذيب! الحل صحيح.");
+        players[currentIdx].score += 1000; // مكافأة حل اللغز
+        
+        if(players[currentIdx].score >= target) { 
+            alert("👑 مبروك الفوز النهائي!"); 
+            location.reload(); 
+        } else { 
+            initRound(); // جولة جديدة بسؤال جديد
+        }
+    } else {
+        alert("❌ لأسف الحل خطأ.. حاول المرة الجاية!");
+        nextTurn();
+    }
+    closePopups();
+};
 
         document.getElementById('spin-btn').onclick = () => {
             const spin = 1800 + Math.random()*360;
