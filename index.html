@@ -3,156 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>فانوس - النسخة الاحترافية 🏆</title>
+    <title>فانوس 3D - نسخة منصور الملكية 🏆</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #ffd700; --red: #e94560; --navy: #0c2461; --glass: rgba(255, 255, 255, 0.1); }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; font-family: 'Cairo', sans-serif; background: radial-gradient(circle, #1e3799, #0c2461); color: white; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        
-        .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: flex-start; padding: 20px; padding-top: 30px; }
-        .screen.active { display: flex; }
+        :root { --gold: #ffd700; --red: #ff4757; --navy: #0a3d62; --bg: #1e272e; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; font-family: 'Cairo', sans-serif; background: var(--bg); 
+            color: white; height: 100vh; overflow: hidden; 
+            display: flex; align-items: center; justify-content: center;
+        }
 
-        /* شاشة الإعداد */
-        .glass-card { background: var(--glass); backdrop-filter: blur(20px); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); width: 90%; max-width: 400px; text-align: center; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: none; font-weight: bold; text-align: center; font-family: inherit; }
-        .main-btn { background: var(--gold); color: #000; border: none; padding: 15px; border-radius: 50px; font-weight: 900; cursor: pointer; width: 100%; font-size: 1.2rem; }
+        /* التصميم الثلاثي الأبعاد 3D */
+        .glass-3d {
+            background: linear-gradient(145deg, #2c3e50, #000000);
+            border-radius: 30px; box-shadow: 10px 10px 30px #0c0c14, -10px -10px 30px #2a2a3a;
+            border: 1px solid rgba(255,255,255,0.1); padding: 30px; text-align: center;
+        }
 
-        /* منطقة المعلومات */
-        .top-info { display: flex; gap: 10px; margin-bottom: 10px; width: 100%; justify-content: center; }
-        .badge { background: var(--navy); border: 2px solid var(--gold); padding: 8px 15px; border-radius: 15px; font-weight: 900; font-size: 0.8rem; }
+        .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .screen.active { display: flex; animation: slideIn 0.5s ease; }
 
-        /* لوحة الحروف */
-        #phrase-display { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; width: 100%; min-height: 80px; margin: 15px 0; }
-        .letter-box { width: 35px; height: 48px; background: #fff; color: transparent; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 900; transition: 0.5s; box-shadow: 0 4px 0 #bbb; }
-        .letter-box.revealed { color: #1a1a2e; background: var(--gold); box-shadow: 0 4px 0 #b8860b; transform: rotateY(360deg); }
-        .letter-box.space { background: transparent; width: 12px; box-shadow: none; }
+        /* لوحة الحروف 3D */
+        #phrase-display { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; perspective: 1000px; }
+        .letter-box { 
+            width: 42px; height: 58px; background: #f1f2f6; color: transparent;
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; font-weight: 900; transition: 0.6s;
+            box-shadow: 0 6px 0 #bdc3c7, 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .letter-box.revealed { color: #1a1a2e; background: var(--gold); transform: rotateX(360deg); box-shadow: 0 6px 0 #b8860b; }
+        .letter-box.space { background: transparent; width: 20px; box-shadow: none; }
 
         /* الدوامة */
-        .wheel-wrapper { position: relative; width: 260px; height: 260px; margin: 5px 0; }
-        .wheel-pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); font-size: 30px; color: #ff0000; z-index: 20; }
-        #wheelCanvas { width: 100%; height: 100%; border-radius: 50%; border: 5px solid #fff; }
+        .wheel-container { position: relative; width: 320px; height: 320px; margin: 20px 0; }
+        #wheelCanvas { width: 100%; height: 100%; border-radius: 50%; border: 10px solid #fff; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
+        .pointer { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 40px; color: var(--red); z-index: 10; filter: drop-shadow(0 4px 5px #000); }
 
-        /* المتسابقين */
-        #players-row { display: flex; gap: 8px; margin-bottom: 10px; width: 100%; justify-content: center; }
-        .p-card { background: var(--glass); padding: 8px; border-radius: 10px; border-bottom: 3px solid transparent; min-width: 85px; text-align: center; }
-        .p-card.active { border-color: var(--gold); background: rgba(255,215,0,0.2); }
+        /* التنبيه الخرافي المدمج */
+        #fancy-msg { 
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(45deg, var(--gold), #ff9f43); color: #000;
+            padding: 20px 40px; border-radius: 50px; font-weight: 900; font-size: 1.8rem;
+            z-index: 1000; box-shadow: 0 0 50px rgba(255, 215, 0, 0.6);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #fancy-msg.show { transform: translate(-50%, -50%) scale(1); }
 
-        /* التحكم */
-        .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-        .act-btn { padding: 10px 15px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; font-size: 0.8rem; font-family: inherit; }
-        .btn-spin { background: var(--red); color: white; }
-        .btn-vowel { background: #00cec9; color: white; }
-        .btn-solve { background: #2ecc71; color: white; }
-        .btn-change { background: #6c5ce7; color: white; }
+        /* أزرار 3D */
+        .btn-3d {
+            padding: 15px 30px; border-radius: 15px; border: none; font-weight: 900; cursor: pointer;
+            box-shadow: 0 6px 0 #2c3e50; transition: 0.2s; font-family: inherit; margin: 5px;
+        }
+        .btn-3d:active { transform: translateY(4px); box-shadow: 0 2px 0 #2c3e50; }
+        .btn-spin { background: var(--red); color: white; box-shadow: 0 6px 0 #b33939; }
+        .btn-solve { background: #2ecc71; color: white; box-shadow: 0 6px 0 #219150; }
 
-        /* الكيبورد وحقل الحل */
-        #kb-box, #solve-box { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); padding: 20px; transform: translateY(100%); transition: 0.4s; z-index: 100; border-radius: 25px 25px 0 0; border-top: 2px solid var(--gold); }
-        #kb-box.open, #solve-box.open { transform: translateY(0); }
-        .key-grid { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
-        .key { padding: 10px; min-width: 40px; border-radius: 8px; border: none; background: #fff; font-weight: 900; cursor: pointer; }
-        .key.used { opacity: 0.2; }
+        /* اللاعبين */
+        #players-info { display: flex; gap: 10px; margin-bottom: 20px; }
+        .p-card { 
+            padding: 15px; border-radius: 15px; background: rgba(255,255,255,0.05);
+            border: 2px solid transparent; min-width: 100px;
+        }
+        .p-card.active { border-color: var(--gold); box-shadow: 0 0 20px var(--gold); background: rgba(255,215,0,0.1); }
+        .p-score { display: block; font-size: 1.5rem; font-weight: 900; color: var(--gold); }
+
+        /* الكيبورد */
+        #kb-box { 
+            position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); 
+            padding: 20px; border-radius: 30px 30px 0 0; transform: translateY(100%); transition: 0.4s;
+        }
+        #kb-box.open { transform: translateY(0); }
+        .key { padding: 12px; margin: 4px; border-radius: 10px; border: none; background: #fff; font-weight: bold; cursor: pointer; min-width: 45px; }
+
+        .hidden { display: none !important; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
+    <div id="fancy-msg">🏆 إفلاس!</div>
+
     <div id="setup-screen" class="screen active">
-        <div class="glass-card">
-            <h1 style="color:var(--gold); margin-bottom:10px;">فـانـوس</h1>
-            <select id="p-count">
-                <option value="2">2 متسابقين</option>
-                <option value="3" selected>3 متسابقين</option>
-            </select>
-            <div id="p-names-inputs"></div>
-            <input type="number" id="target-input" value="3000">
-            <button id="start-btn" class="main-btn">ابدأ اللعب 🚀</button>
-        </div>
-    </div>
-
-    <div id="game-screen" class="screen">
-        <div class="top-info">
-            <div class="badge">📂 <span id="cat-display">---</span></div>
-            <div class="badge">🎯 الهدف: <span id="goal-display">0</span></div>
-        </div>
-        <div id="phrase-display"></div>
-        <div id="players-row"></div>
-        <div class="wheel-wrapper">
-            <div class="wheel-pointer">▼</div>
-            <canvas id="wheelCanvas" width="400" height="400"></canvas>
-        </div>
-        <div class="actions">
-            <button id="spin-btn" class="act-btn btn-spin">لف العجلة 🎡</button>
-            <button id="vowel-btn" class="act-btn btn-vowel" disabled>مساعدة (250)</button>
-            <button id="solve-btn" class="act-btn btn-solve">أعرف الحل! 💡</button>
-            <button id="change-btn" class="act-btn btn-change">تغيير السؤال 🔄</button>
-        </div>
-
-        <div id="kb-box">
-            <div class="key-grid" id="keys"></div>
-            <button onclick="closePopups()" style="width:100%; margin-top:10px; background:var(--red); color:white; border:none; padding:10px; border-radius:10px;">إغلاق</button>
-        </div>
-
-        <div id="solve-box">
-            <h3 style="margin-top:0">اكتب الجملة كاملة:</h3>
-            <input type="text" id="solve-input" placeholder="اكتب الحل هنا..." style="color:#000">
-            <div style="display:flex; gap:10px;">
-                <button id="confirm-solve" class="main-btn" style="flex:2">تأكيد الحل ✅</button>
-                <button onclick="closePopups()" class="main-btn" style="flex:1; background:#888">إلغاء</button>
+        <div class="glass-3d" style="width: 90%; max-width: 450px;">
+            <h1 style="color:var(--gold); font-size: 3.5rem; margin:0;">فـانـوس</h1>
+            <div id="setup-form">
+                <select id="p-count" style="width:100%; padding:12px; border-radius:10px; margin:10px 0;">
+                    <option value="2">لاعبين (2)</option>
+                    <option value="3" selected>ثلاثة لاعبين (3)</option>
+                </select>
+                <div id="p-names"></div>
+                <input type="number" id="target" value="5000" style="width:100%; padding:12px; border-radius:10px; margin:10px 0;">
+                <button onclick="startGame()" class="btn-3d btn-spin" style="width:100%; font-size: 1.5rem;">انطلق 🚀</button>
             </div>
         </div>
     </div>
 
+    <div id="game-screen" class="screen">
+        <div id="players-info"></div>
+        <div id="phrase-display"></div>
+        
+        <div class="wheel-container">
+            <div class="pointer">▼</div>
+            <canvas id="wheelCanvas" width="400" height="400"></canvas>
+        </div>
+
+        <div class="actions">
+            <button id="spin-btn" class="btn-3d btn-spin">لف العجلة 🎡</button>
+            <button id="solve-btn" class="btn-3d btn-solve">أعرف الحل! 💡</button>
+            <button id="vowel-btn" class="btn-3d" style="background:#00cec9; color:#fff;" disabled>مساعدة (250)</button>
+        </div>
+
+        <div id="kb-box">
+            <div id="keys" style="display:flex; flex-wrap:wrap; justify-content:center;"></div>
+            <button onclick="document.getElementById('kb-box').classList.remove('open')" style="width:100%; background:var(--red); color:white; border:none; padding:10px; border-radius:10px; margin-top:10px; font-weight:bold;">إغلاق</button>
+        </div>
+    </div>
+
     <script>
-        let questions = [];
-        let players = [], currentIdx = 0, target = 3000, phrase = "", used = [], rotation = 0, wheelValue = 0;
+        // --- نظام الصوت البرمجي (يعمل بدون روابط) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playNote(freq, type, duration) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }
+
+        const sounds = {
+            spin: () => playNote(200 + Math.random()*100, 'sawtooth', 0.1),
+            correct: () => { playNote(600, 'sine', 0.2); setTimeout(()=>playNote(800, 'sine', 0.3), 100); },
+            wrong: () => { playNote(300, 'square', 0.2); setTimeout(()=>playNote(200, 'square', 0.4), 150); },
+            win: () => { [523, 659, 783, 1046].forEach((f, i) => setTimeout(()=>playNote(f, 'sine', 0.5), i*150)); }
+        };
+
+        // --- منطق اللعبة ---
+        let questions = [], players = [], currentIdx = 0, targetScore = 5000, phrase = "", used = [], rotation = 0, wheelValue = 0;
         const segments = [100, 250, 500, "إفلاس 💀", 1000, 2000, "راحت عليك 💨", 300, 150, 750];
 
-        async function fetchQuestions() {
-            try {
-                const res = await fetch('questions.json');
-                questions = await res.json();
-            } catch (e) {
-                questions = [{"category": "عام", "phrase": "المملكة العربية السعودية"}];
-            }
-        }
-
-        const pCountSel = document.getElementById('p-count');
-        const pNamesDiv = document.getElementById('p-names-inputs');
-        function updateInps() {
+        const pCount = document.getElementById('p-count');
+        const pNamesDiv = document.getElementById('p-names');
+        pCount.onchange = () => {
             pNamesDiv.innerHTML = '';
-            for(let i=1; i<=pCountSel.value; i++) pNamesDiv.innerHTML += `<input type="text" id="nn${i}" value="لاعب ${i}">`;
-        }
-        pCountSel.onchange = updateInps; updateInps();
+            for(let i=1; i<=pCount.value; i++) pNamesDiv.innerHTML += `<input type="text" id="n${i}" value="متسابق ${i}" style="width:100%; padding:10px; margin:5px 0; border-radius:8px;">`;
+        };
+        pCount.onchange();
 
-        function drawWheel() {
-            const canvas = document.getElementById('wheelCanvas');
-            const ctx = canvas.getContext('2d');
-            const step = (Math.PI*2)/segments.length;
-            ctx.clearRect(0,0,400,400);
-            segments.forEach((s, i) => {
-                ctx.beginPath(); ctx.moveTo(200,200); ctx.arc(200,200,195, i*step, (i+1)*step);
-                ctx.fillStyle = i%2==0 ? "#2d3436" : "#e94560";
-                if(s.toString().includes("إفلاس")) ctx.fillStyle="#000";
-                ctx.fill(); ctx.strokeStyle="#fff"; ctx.stroke();
-                ctx.save(); ctx.translate(200,200); ctx.rotate(i*step + step/2);
-                ctx.fillStyle="#fff"; ctx.font="bold 18px Cairo"; ctx.textAlign="right"; ctx.fillText(s, 175, 8); ctx.restore();
-            });
-        }
-
-        document.getElementById('start-btn').onclick = async () => {
-            await fetchQuestions();
-            target = parseInt(document.getElementById('target-input').value);
-            for(let i=1; i<=pCountSel.value; i++) players.push({name: document.getElementById('nn'+i).value, score: 0});
+        async function startGame() {
+            try { const res = await fetch('questions.json'); questions = await res.json(); } 
+            catch(e) { questions = [{"category": "عام", "phrase": "المملكة العربية السعودية"}]; }
+            
+            targetScore = parseInt(document.getElementById('target').value);
+            for(let i=1; i<=pCount.value; i++) {
+                players.push({name: document.getElementById('n'+i).value, score: 0});
+            }
             document.getElementById('setup-screen').classList.remove('active');
             document.getElementById('game-screen').classList.add('active');
-            document.getElementById('goal-display').innerText = target;
             drawWheel(); initRound();
-        };
+        }
 
         function initRound() {
             const q = questions[Math.floor(Math.random()*questions.length)];
             phrase = q.phrase; used = [];
-            document.getElementById('cat-display').innerText = q.category;
             const disp = document.getElementById('phrase-display'); disp.innerHTML = '';
             phrase.split('').forEach(c => {
                 const d = document.createElement('div');
@@ -162,125 +177,92 @@
             updateUI();
         }
 
-        // توحيد الألف: تحويل كل أشكال الألف إلى حرف واحد للمقارنة
-        // --- تحديث دالة التوحيد والمقارنة في ملف game.js ---
-
-function normalize(char) {
-    // توحيد الألف بكل أشكالها
-    if (['أ', 'إ', 'آ', 'ا'].includes(char)) return 'ا';
-    // توحيد الهاء والتاء المربوطة (طلب منصور)
-    if (['ه', 'ة'].includes(char)) return 'ه'; 
-    return char;
-}
-
-function handleChoice(l, v) {
-    used.push(l); 
-    closePopups();
-    let count = 0;
-    const boxes = document.querySelectorAll('.letter-box');
-    
-    phrase.split('').forEach((c, i) => {
-        // المقارنة الآن ذكية: هـ = ة  و  أ = ا
-        if(normalize(c) === normalize(l)) {
-            boxes[i].classList.add('revealed');
-            count++;
+        function drawWheel() {
+            const ctx = document.getElementById('wheelCanvas').getContext('2d');
+            const step = (Math.PI*2)/segments.length;
+            ctx.clearRect(0,0,400,400);
+            segments.forEach((s, i) => {
+                ctx.beginPath(); ctx.moveTo(200,200); ctx.arc(200,200,190, i*step, (i+1)*step);
+                ctx.fillStyle = i%2==0 ? "#2d3436" : "#e94560";
+                if(s.toString().includes("إفلاس")) ctx.fillStyle="#000";
+                ctx.fill(); ctx.strokeStyle="#fff"; ctx.stroke();
+                ctx.save(); ctx.translate(200,200); ctx.rotate(i*step + step/2);
+                ctx.fillStyle="#fff"; ctx.font="bold 20px Cairo"; ctx.textAlign="right"; ctx.fillText(s, 170, 8); ctx.restore();
+            });
         }
-    });
-
-    if(count > 0) {
-        // تشغيل صوت النجاح
-        document.getElementById('s-correct').play().catch(()=>{});
-        
-        if(v) {
-            players[currentIdx].score -= 250;
-        } else {
-            players[currentIdx].score += (wheelValue * count);
-        }
-        
-        // التحقق من الفوز بالنقاط
-        if(players[currentIdx].score >= target) { 
-            alert("👑 كفو يا " + players[currentIdx].name + "! وصلت للهدف وفزت باللعبة!"); 
-            location.reload(); 
-        }
-    } else {
-        // تشغيل صوت الخطأ وانتقال الدور
-        document.getElementById('s-wrong').play().catch(()=>{});
-        nextTurn();
-    }
-    updateUI();
-}
-
-// --- تحديث زر "تأكيد الحل" ليكون ذكياً أيضاً في المقارنة ---
-
-document.getElementById('confirm-solve').onclick = () => {
-    const val = document.getElementById('solve-input').value.trim();
-    
-    // تحويل الجملة الأصلية والمدخلة إلى صيغة موحدة للمقارنة
-    const normPhrase = phrase.split('').map(normalize).join('').replace(/\s/g, '');
-    const normInput = val.split('').map(normalize).join('').replace(/\s/g, '');
-
-    if(normInput === normPhrase) {
-        alert("✅ ذيب! الحل صحيح.");
-        players[currentIdx].score += 1000; // مكافأة حل اللغز
-        
-        if(players[currentIdx].score >= target) { 
-            alert("👑 مبروك الفوز النهائي!"); 
-            location.reload(); 
-        } else { 
-            initRound(); // جولة جديدة بسؤال جديد
-        }
-    } else {
-        alert("❌ لأسف الحل خطأ.. حاول المرة الجاية!");
-        nextTurn();
-    }
-    closePopups();
-};
 
         document.getElementById('spin-btn').onclick = () => {
+            let spinInt = setInterval(sounds.spin, 150);
             const spin = 1800 + Math.random()*360;
             rotation += spin;
             const canvas = document.getElementById('wheelCanvas');
             canvas.style.transition = "transform 4s cubic-bezier(0.1, 0, 0.1, 1)";
             canvas.style.transform = `rotate(${rotation}deg)`;
+            
             setTimeout(() => {
+                clearInterval(spinInt);
                 const deg = rotation % 360;
                 const idx = Math.floor(((360 - deg + 270) % 360) / (360/segments.length));
                 wheelValue = segments[idx];
-                if(wheelValue.toString().includes("إفلاس")) { alert("💀 إفلاس!"); players[currentIdx].score=0; nextTurn(); }
-                else if(wheelValue.toString().includes("راحت عليك")) { nextTurn(); }
-                else { showKB(false); }
+                
+                if(wheelValue.toString().includes("إفلاس")) {
+                    flashMsg("💀 إفلاس!"); players[currentIdx].score = 0; sounds.wrong(); nextTurn();
+                } else if(wheelValue.toString().includes("راحت عليك")) {
+                    flashMsg("💨 راحت عليك!"); sounds.wrong(); nextTurn();
+                } else {
+                    flashMsg("🎡 " + wheelValue + " نقطة!"); showKB();
+                }
             }, 4000);
         };
 
-        function showKB(v) {
+        function normalize(c) {
+            if(['أ','إ','آ','ا'].includes(c)) return 'ا';
+            if(['ه','ة'].includes(c)) return 'ه';
+            return c;
+        }
+
+        function handleLetter(l) {
+            used.push(l); document.getElementById('kb-box').classList.remove('open');
+            let count = 0;
+            phrase.split('').forEach((c, i) => {
+                if(normalize(c) === normalize(l)) {
+                    document.querySelectorAll('.letter-box')[i].classList.add('revealed');
+                    count++;
+                }
+            });
+
+            if(count > 0) {
+                players[currentIdx].score += (parseInt(wheelValue) * count);
+                flashMsg("✅ أصبت " + count + " مرة!"); sounds.correct();
+                if(players[currentIdx].score >= targetScore) { sounds.win(); flashMsg("👑 فاز " + players[currentIdx].name + "!"); setTimeout(()=>location.reload(), 3000); }
+            } else {
+                flashMsg("❌ خطأ!"); sounds.wrong(); nextTurn();
+            }
+            updateUI();
+        }
+
+        function showKB() {
             document.getElementById('kb-box').classList.add('open');
             const kGrid = document.getElementById('keys'); kGrid.innerHTML = '';
-            // في الكيبورد، نعرض "أ" كحرف يمثل كل الألف
-            const lets = v ? ['أ','و','ي'] : "بتثجحخدذرزسشصضطظعغفقكلمنهـ".split('');
-            lets.forEach(l => {
+            "أبتثجحخدذرزسشصضطظعغفقكلمنهـ".split('').forEach(l => {
                 const b = document.createElement('button'); b.className = `key ${used.includes(l)?'used':''}`;
-                b.innerText = l; if(!used.includes(l)) b.onclick = () => handleChoice(l, v);
+                b.innerText = l; if(!used.includes(l)) b.onclick = () => handleLetter(l);
                 kGrid.appendChild(b);
             });
         }
 
-        function closePopups() {
-            document.getElementById('kb-box').classList.remove('open');
-            document.getElementById('solve-box').classList.remove('open');
-            document.getElementById('solve-input').value = "";
+        function flashMsg(txt) {
+            const m = document.getElementById('fancy-msg'); m.innerText = txt;
+            m.classList.add('show'); setTimeout(() => m.classList.remove('show'), 2500);
         }
 
         function nextTurn() { currentIdx = (currentIdx + 1) % players.length; updateUI(); }
         function updateUI() {
-            const row = document.getElementById('players-row'); row.innerHTML = '';
+            const side = document.getElementById('players-info'); side.innerHTML = '';
             players.forEach((p, i) => {
-                row.innerHTML += `<div class="p-card ${i==currentIdx?'active':''}"><b>${p.name}</b><br>${p.score}</div>`;
+                side.innerHTML += `<div class="p-card ${i==currentIdx?'active':''}"><b>${p.name}</b><br><span class="p-score">${p.score}</span></div>`;
             });
-            document.getElementById('vowel-btn').disabled = players[currentIdx].score < 250;
         }
-
-        document.getElementById('change-btn').onclick = () => { initRound(); nextTurn(); };
-        document.getElementById('vowel-btn').onclick = () => showKB(true);
     </script>
 </body>
 </html>
